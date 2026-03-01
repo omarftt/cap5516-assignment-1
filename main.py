@@ -10,7 +10,7 @@ import os
 
 def main():
     args   = get_args()
-    device = torch.device("cuda" if torch.cuda.is_available() else "mps")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     print(f"Run: {args.run_name}")
     print(f"Pretrained: {args.pretrained}\n")
