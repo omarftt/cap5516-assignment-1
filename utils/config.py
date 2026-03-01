@@ -16,7 +16,7 @@ def get_args():
     parser.add_argument("--run_name", type=str, required=True, help="Name for this run")
     parser.add_argument("--pretrained", action="store_true", help="Activate to use pretrained or not")
     parser.add_argument("--epochs", type=int, default=30)
-    parser.add_argument("--batch_size", type=int, default=32)
+    parser.add_argument("--batch_size", type=int, default=128)
     parser.add_argument("--lr", type=float, default=1e-4)
 
     # Experiment flags

@@ -39,6 +39,7 @@ def evaluate(model, loader, device, class_names):
 
 
 def save_results(overall_acc, per_class_acc, all_preds, all_labels, class_names, results_dir, run_name):
+
     report = classification_report(all_labels.numpy(), all_preds.numpy(), target_names=class_names, digits=4)
 
     print(f"\nOverall Accuracy: {overall_acc}")
@@ -62,29 +63,46 @@ def save_results(overall_acc, per_class_acc, all_preds, all_labels, class_names,
 
 
 def save_failure_cases(model, all_imgs, all_preds, all_labels, all_probs,
-                       class_names, plots_dir, run_name, num_cases=6,
+                       class_names, plots_dir, run_name, num_cases=8,
                        device=torch.device("cpu"), use_gradcam=False):
-    wrong = (all_preds != all_labels).nonzero(as_tuple=True)[0][:num_cases]
 
-    if len(wrong) == 0:
-        print("No failure cases")
+    # One case per GT/Pred combination
+    combinations = [
+        (0, 0), # Correct
+        (1, 1), # Correct
+        (0, 1), # Failure
+        (1, 0), # Failure
+    ]
+
+    indices = []
+    for true_cls, pred_cls in combinations:
+        match = ((all_labels == true_cls) & (all_preds == pred_cls)).nonzero(as_tuple=True)[0]
+        if len(match) > 0:
+            indices.append(match[0])
+        else:
+            print(f"No case found for True: {class_names[true_cls]} Pred: {class_names[pred_cls]}")
+
+    if len(indices) == 0:
+        print("No cases to display")
         return
 
     cols = 2 if use_gradcam else 1
-    fig, axes = plt.subplots(len(wrong), cols, figsize=(cols * 3, len(wrong) * 3))
-    axes = np.array(axes).reshape(len(wrong), cols)   # always (n, cols)
+    fig, axes = plt.subplots(len(indices), cols, figsize=(cols * 3, len(indices) * 3))
+    axes = np.array(axes).reshape(len(indices), cols)  # always (n, cols)
 
     gcam = ViTGradCAM(model) if use_gradcam else None
 
-    for row, idx in enumerate(wrong):
+    for row, idx in enumerate(indices):
         img_t    = all_imgs[idx]
         img_disp = inv_norm(img_t).permute(1, 2, 0).clamp(0, 1).numpy()
         true_lbl = class_names[all_labels[idx].item()]
         pred_lbl = class_names[all_preds[idx].item()]
         conf     = all_probs[idx][all_preds[idx]].item()
+        is_wrong = (all_preds[idx] != all_labels[idx]).item()
 
+        color = "red" if is_wrong else "green"
         axes[row, 0].imshow(img_disp)
-        axes[row, 0].set_title(f"True: {true_lbl}  Pred: {pred_lbl} ({conf:.2f})", fontsize=8, color="red")
+        axes[row, 0].set_title(f"True: {true_lbl}  Pred: {pred_lbl} ({conf:.2f})", fontsize=8, color=color)
         axes[row, 0].axis("off")
 
         if use_gradcam:
@@ -96,7 +114,7 @@ def save_failure_cases(model, all_imgs, all_preds, all_labels, all_probs,
     if gcam:
         gcam.remove_hooks()
 
-    plt.suptitle(f"Failure Cases", fontsize=10)
+    plt.suptitle("GT vs Pred: Correct (green) and Failure (red) Cases", fontsize=10)
     plt.tight_layout()
     plt.savefig(os.path.join(plots_dir, f"{run_name}_failure_cases.png"), dpi=150)
     plt.close()

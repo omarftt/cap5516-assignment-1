@@ -15,5 +15,5 @@ class ViTTiny(nn.Module):
         return self.vit(x)
 
     def get_last_block(self):
-        """Last transformer block — used as Grad-CAM target layer"""
-        return self.vit.blocks[-1]
+        """Middle transformer block """
+        return self.vit.blocks[len(self.vit.blocks) // 2]

@@ -55,7 +55,7 @@ def main():
         save_failure_cases(
             model, all_imgs, all_preds, all_labels, all_probs,
             CLASS_NAMES, PLOTS_DIR, args.run_name,
-            num_cases=8, device=device, use_gradcam=args.gradcam,
+            num_cases=4, device=device, use_gradcam=args.gradcam,
         )
 
 
