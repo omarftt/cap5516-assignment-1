@@ -1,4 +1,38 @@
+
+Readme · MD
+Copy
+
 # Pneumonia Detection with ViT-Tiny
+
+## Folder Structure
+
+```
+assignment1/
+├── data/
+│   ├── train/
+│   │   ├── NORMAL/
+│   │   └── PNEUMONIA/
+│   ├── val/
+│   │   ├── NORMAL/
+│   │   └── PNEUMONIA/
+│   └── test/
+│       ├── NORMAL/
+│       └── PNEUMONIA/
+├── checkpoints/
+├── logs/
+├── results/
+├── plots/
+├── utils/
+│   ├── config.py
+│   ├── dataset.py
+│   ├── model.py
+│   ├── gradcam.py
+│   └── utils.py
+├── train.py
+├── evaluate.py
+├── main.py
+└── README.md
+```
 
 ## Installation
 
